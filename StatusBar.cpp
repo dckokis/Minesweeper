@@ -25,13 +25,13 @@ void StatusBar::draw(sf::RenderWindow& app, const GameBoard& board, const Graphi
 	//flags count
 	sf::Text txt;
 	format_numbers(txt, board.flags_count());
-	set_text(txt, sf::Vector2i(3 * height / 4 + 3, (height / 4 + width - 12)));
+	set_text(txt, sf::Vector2i(3 * height / 4 + 5, (height / 4 + width + 10)));
 	app.draw(txt);
 
 	//flag
 	sf::Sprite f;
 	graphic_element.customize(f, sf::Vector2i(height / 4,
-		height / 4 + width), height / 2, "small_flag");
+		height / 4 + width - 6), height / 2, "small_flag");
 	app.draw(f);
 
 	//clock
@@ -64,25 +64,25 @@ void StatusBar::draw(sf::RenderWindow& app, const GameBoard& board, const Graphi
 		i_time_ = i_time_ >= 1000 ? 999 : i_time_;
 	}
 	format_numbers(time, i_time_);
-	set_text(time, sf::Vector2i(width - 5 * height / 4 + 3, (height / 4 + width - 12)));
+	set_text(time, sf::Vector2i(width - 5 * height / 4 + 1, (height / 4 + width + 10)));
 	app.draw(time);
 
 	//back
 	sf::Sprite b;
-	graphic_element.customize(b, sf::Vector2i(0, width + 5), height / 3, "back");
+	graphic_element.customize(b, sf::Vector2i(0, width + 100), height / 3, "back");
 	app.draw(b);
 }
 
-void StatusBar::set_text(sf::Text& txt, const sf::Vector2i& pos) {
+void StatusBar::set_text(sf::Text& txt, const sf::Vector2i& pos) const {
 	txt.setFont(font_);
-	txt.setStyle(sf::Text::Style::Bold);
+	txt.setStyle(sf::Text::Style::Regular);
 	txt.setFillColor(sf::Color::Red);
-	txt.setCharacterSize(80);
+	txt.setCharacterSize(40);
 	txt.setPosition(static_cast<float>(pos.x), static_cast<float>(pos.y));
 }
 
 void StatusBar::set_rect(sf::RectangleShape& rect, const sf::Vector2i& size, const sf::Vector2i& pos) {
-	rect.setFillColor(sf::Color::Black);
+	rect.setFillColor(sf::Color(230, 230, 230));
 	rect.setSize(sf::Vector2f(static_cast<float>(size.x), static_cast<float>(size.y)));
 	rect.setPosition(static_cast<float>(pos.x), static_cast<float>(pos.y));
 }
@@ -106,6 +106,6 @@ bool StatusBar::is_smile_area_contains(const sf::Vector2i& v, const GameBoard& b
 }
 
 bool StatusBar::is_back_area_contains(const sf::Vector2i& v, const GameBoard& board) {
-	sf::IntRect area(0, board.size() * board.cell_size() + 5, height / 3, height / 3);
+	sf::IntRect area(0, board.size() * board.cell_size() + 105, height / 3, height / 3);
 	return area.contains(v);
 }

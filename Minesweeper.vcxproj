@@ -157,7 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cell.hpp" />
-    <ClInclude Include="FontManager.hpp" />
+    <ClInclude Include="FontPath.hpp" />
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="GameBoard.hpp" />
     <ClInclude Include="GraphicElement.hpp" />

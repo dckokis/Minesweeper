@@ -34,11 +34,11 @@ bool Game::run(const Game::level level) {
 }
 
 void Game::set_field_parameters(const level& level, int& size, int& bombs_count, int& cell_size) {
-	if (level == level::beginner) {
+	if (level == level::LIGHT) {
 		cell_size = 60;
 		size = 9; bombs_count = 10;
 	}
-	else if (level == level::intermediate) {
+	else if (level == level::MEDIUM) {
 		cell_size = 45;
 		size = 16; bombs_count = 40;
 	}
@@ -52,12 +52,12 @@ void Game::event_processing(sf::RenderWindow& app, GameBoard& board) {
 	const auto pos = sf::Mouse::getPosition(app);
 	const auto v = sf::Vector2i(pos.x / board.cell_size(), pos.y / board.cell_size());
 
-	sf::Event e{};
-	while (app.pollEvent(e)) {
-		if (e.type == sf::Event::Closed) {
+	sf::Event event{};
+	while (app.pollEvent(event)) {
+		if (event.type == sf::Event::Closed) {
 			app.close();
 		}
-		if (e.type == sf::Event::MouseButtonPressed && v.y < board.size() && board.need_to_open()) {
+		if (event.type == sf::Event::MouseButtonPressed && v.y < board.size() && board.need_to_open()) {
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 				board.open_cell(v);
 			}

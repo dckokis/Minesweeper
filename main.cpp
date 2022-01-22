@@ -4,8 +4,7 @@
 int main() {
 	try {
 		while (GameMenu::start()) {
-			Game g;
-			if (!g.run(GameMenu::get_level())) {
+			if (Game game; !game.run(GameMenu::get_level())) {
 				break;
 			}
 		}

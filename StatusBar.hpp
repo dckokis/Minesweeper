@@ -1,6 +1,6 @@
 #pragma once
 #include "GameBoard.hpp"
-#include "FontManager.hpp"
+#include "FontPath.hpp"
 #include <SFML/Graphics.hpp>
 
 class StatusBar final {
@@ -17,7 +17,7 @@ private:
 	sf::Clock clock_;
 	int i_time_;
 
-	void set_text(sf::Text& txt, const sf::Vector2i& pos);
+	void set_text(sf::Text& txt, const sf::Vector2i& pos) const;
 	static void set_rect(sf::RectangleShape& rect, const sf::Vector2i& size, const sf::Vector2i& pos);
 	static void format_numbers(sf::Text& txt, const int& number);
 };

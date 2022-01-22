@@ -80,7 +80,7 @@ void GameBoard::flag(const sf::Vector2i& v) {
 
 void GameBoard::draw(sf::RenderWindow& app, const GraphicElement& img) {
 	sf::Sprite s;
-	app.clear(sf::Color(219, 219, 219));
+	app.clear(sf::Color::White);
 
 	for (auto i = 0; i < size_; ++i) {
 		for (auto j = 0; j < size_; ++j) {

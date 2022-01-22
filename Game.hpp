@@ -4,7 +4,7 @@
 
 class Game final {
 public:
-	enum class level { beginner, intermediate, expert };
+	enum class level { LIGHT, MEDIUM, HARD };
 
 	Game() : new_game_(1) {}
 	bool run(const Game::level level);

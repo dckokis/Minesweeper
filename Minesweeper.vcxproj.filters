@@ -56,7 +56,7 @@
     <ClInclude Include="StatusBar.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FontManager.hpp">
+    <ClInclude Include="FontPath.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
