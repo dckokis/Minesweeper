@@ -33,7 +33,7 @@
     <ClCompile Include="GameMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StatusBar.cpp">
+    <ClCompile Include="GameInfoBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,10 +53,10 @@
     <ClInclude Include="GameMenu.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StatusBar.hpp">
+    <ClInclude Include="GameInfoBar.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FontPath.hpp">
+    <ClInclude Include="GameTimer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

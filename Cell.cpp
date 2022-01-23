@@ -1,48 +1,45 @@
-#include "cell.hpp"
+#include "Cell.hpp"
 
-Cell::Cell() : bomb_(false), condition_(cellState::close) {
+Cell::Cell() : is_mined_(false), state_(cell_state::CLOSE) {
 }
 
-void Cell::set_bomb() {
-	bomb_ = true;
+void Cell::mine_cell() {
+	is_mined_ = true;
 }
 
-int Cell::open() {
-	if (condition_ == cellState::flag) {
+int Cell::try_open() {
+	if (state_ == cell_state::FLAG){
 		return -1;
 	}
-	if (bomb_ == true) {
-		condition_ = cellState::open;
-		return 0;
-	}
-	if (condition_ != cellState::open) {
-		condition_ = cellState::open;
+	if (is_mined_ || state_ != cell_state::OPEN) {
+		state_ = cell_state::OPEN;
+		if (is_mined_) {
+			return 0;
+		}
 		return 1;
 	}
-	return -1;
 }
 
-int Cell::flag() {
-	if (condition_ == cellState::flag) {
-		condition_ = cellState::close;
+int Cell::set_reset_flag() {
+	if (state_ == cell_state::FLAG) {
+		state_ = cell_state::CLOSE;
 		return 0;
 	}
-	if (condition_ != cellState::open) {
-		condition_ = cellState::flag;
+	if (state_ != cell_state::OPEN) {
+		state_ = cell_state::FLAG;
 		return 1;
 	}
-	return -1;
 }
 
 void Cell::clear() {
-	bomb_ = false;
-	condition_ = cellState::close;
+	is_mined_ = false;
+	state_ = cell_state::CLOSE;
 }
 
-Cell::cellState Cell::condition() const {
-	return condition_;
+Cell::cell_state Cell::check_state() const {
+	return state_;
 }
 
 bool Cell::is_mined() const {
-	return bomb_;
+	return is_mined_;
 }

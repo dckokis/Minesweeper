@@ -1,20 +1,23 @@
 #include "GameMenu.hpp"
 
+namespace {
+	const std::string font_path = "resources/font/Montserrat-Bold.ttf";
+}
+
 bool GameMenu::start() {
-	sf::RenderWindow app(sf::VideoMode(size, size), "Minesweeper Menu", sf::Style::Close);
+	sf::RenderWindow app(sf::VideoMode(size, size), "Main Menu", sf::Style::Close);
 	sf::Font font;
 	if (!font.loadFromFile(font_path)) {
 		throw std::invalid_argument(font_path);
 	}
 
-	auto light_level_btn = GameMenu::MenuButton(sf::Vector2i(size / 2, size / 6),
-		"LIGHT", sf::Vector2i(size / 4, size / 4), font);
-	auto medium_level_btn = GameMenu::MenuButton(sf::Vector2i(size / 2, size / 6),
-		"MEDIUM", sf::Vector2i(size / 4, size / 2), font);
-	auto hard_btn = GameMenu::MenuButton(sf::Vector2i(size / 2, size / 6),
-		"HARD", sf::Vector2i(size / 4, 3 * size / 4), font);
-
 	while (app.isOpen()) {
+		auto light_level_btn = GameMenu::MenuButton(sf::Vector2i(size / 2, size / 6),
+			"LIGHT", sf::Vector2i(size / 4, size / 4), font);
+		auto medium_level_btn = GameMenu::MenuButton(sf::Vector2i(size / 2, size / 6),
+			"MEDIUM", sf::Vector2i(size / 4, size / 2), font);
+		auto hard_btn = GameMenu::MenuButton(sf::Vector2i(size / 2, size / 6),
+			"HARD", sf::Vector2i(size / 4, 3 * size / 4), font);
 		sf::Event event{};
 		app.clear(sf::Color(150, 150, 150));
 		while (app.pollEvent(event)) {
@@ -23,17 +26,17 @@ bool GameMenu::start() {
 				return false;
 			}
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-				&& light_level_btn.is_point_within_borders(sf::Mouse::getPosition(app))) {
+				&& light_level_btn.click_registered(sf::Mouse::getPosition(app))) {
 				level_ = Game::level::LIGHT;
 				app.close();
 			}
 			else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-				&& medium_level_btn.is_point_within_borders(sf::Mouse::getPosition(app))) {
+				&& medium_level_btn.click_registered(sf::Mouse::getPosition(app))) {
 				level_ = Game::level::MEDIUM;
 				app.close();
 			}
 			else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-				&& hard_btn.is_point_within_borders(sf::Mouse::getPosition(app))) {
+				&& hard_btn.click_registered(sf::Mouse::getPosition(app))) {
 				level_ = Game::level::HARD;
 				app.close();
 			}
@@ -91,6 +94,6 @@ void GameMenu::MenuButton::draw(sf::RenderWindow& app) const {
 	app.draw(button_text_);
 }
 
-bool GameMenu::MenuButton::is_point_within_borders(const sf::Vector2i& v) const {
-	return borders_.contains(v);
+bool GameMenu::MenuButton::click_registered(const sf::Vector2i& point) const {
+	return borders_.contains(point);
 }

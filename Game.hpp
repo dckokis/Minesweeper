@@ -1,6 +1,6 @@
 #pragma once
 #include "GameBoard.hpp"
-#include "StatusBar.hpp"
+#include "GameInfoBar.hpp"
 
 class Game final {
 public:
@@ -12,7 +12,7 @@ public:
 private:
 	int new_game_;
 
-	void event_processing(sf::RenderWindow& app, GameBoard& board);
+	void mouse_click_process(sf::RenderWindow& app, GameBoard& board);
 	void game_over(sf::RenderWindow& app, const GameBoard& board);
-	static void set_field_parameters(const level& level, int& size, int& bombs_count, int& cell_size);
+	static void set_game_params(const level& level, int& size, int& bombs_count, int& cell_size);
 };

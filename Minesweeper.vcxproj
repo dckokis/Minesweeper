@@ -153,16 +153,16 @@
     <ClCompile Include="GraphicElement.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="GameMenu.cpp" />
-    <ClCompile Include="StatusBar.cpp" />
+    <ClCompile Include="GameInfoBar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cell.hpp" />
-    <ClInclude Include="FontPath.hpp" />
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="GameBoard.hpp" />
+    <ClInclude Include="GameTimer.hpp" />
     <ClInclude Include="GraphicElement.hpp" />
     <ClInclude Include="GameMenu.hpp" />
-    <ClInclude Include="StatusBar.hpp" />
+    <ClInclude Include="GameInfoBar.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

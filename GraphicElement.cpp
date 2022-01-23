@@ -2,8 +2,8 @@
 
 namespace {
 	std::vector<std::string> textures_names = {
-		"close", "flag", "bomb", "red_bomb", "0", "1", "2", "3", "4", "5", "6", "7", "8", "small_flag", "clock",
-		"smile", "win", "losing", "back"
+		"close", "flag", "bomb", "red_bomb", "0", "1", "2", "3", "4", "5", "6", "7", "8", "flag_ico", "clock",
+		"restart", "win", "back"
 	};
 	std::unordered_map<std::string, sf::Texture> textures;
 }
@@ -12,7 +12,7 @@ namespace {
 GraphicElement::GraphicElement() {
 	for (const auto& name : textures_names) {
 		sf::Texture texture;
-		if (!texture.loadFromFile("images/" + name + ".png")) {
+		if (!texture.loadFromFile("resources/images/" + name + ".png")) {
 			throw std::invalid_argument(name);
 		}
 		textures[name] = texture;

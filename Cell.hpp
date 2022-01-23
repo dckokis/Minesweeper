@@ -4,20 +4,18 @@ class Cell final {
 public:
 	Cell();
 
-	void set_bomb();
-	int open();
-	int flag();
+	void mine_cell();
+	int try_open();
+	int set_reset_flag();
 
 	void clear();
 
-	enum class cellState { close, open, flag };
+	enum class cell_state { CLOSE, OPEN, FLAG };
 
-	[[nodiscard]] cellState condition() const;
+	[[nodiscard]] cell_state check_state() const;
 	[[nodiscard]] bool is_mined() const;
 
-	~Cell() = default;
-
 private:
-	bool bomb_;
-	cellState condition_;
+	bool is_mined_;
+	cell_state state_;
 };
