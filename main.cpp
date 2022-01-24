@@ -4,14 +4,14 @@
 int main() {
 	try {
 		while (GameMenu::start()) {
-			if (Game game; !game.run(GameMenu::get_level())) {
+			Game game;
+			if (!game.run(GameMenu::get_level())) {
 				break;
 			}
 		}
 	}
-	catch (std::invalid_argument& arg) {
-		std::cerr << arg.what() << std::endl;
-		std::cerr << "file does not exist" << std::endl;
+	catch (std::exception& exception) {
+		std::cerr << exception.what() << std::endl;
 	}
 	return 0;
 }

@@ -1,5 +1,4 @@
 #include "GameBoard.hpp"
-#include <cstdlib>
 #include <ctime>
 #include <stack>
 
@@ -12,11 +11,11 @@ namespace {
 }
 
 GameBoard::GameBoard(const int& size, const int& bombs_count, const int& cell_size) :
-	is_empty_(true), size_(size),
+	is_clear_(true), size_(size),
 	cell_size_(cell_size),
 	stage_(game_stage::GAME),
 	bombs_amount_(bombs_count),
-	flags_left_(bombs_amount_)
+	flags_remain_(bombs_amount_)
 {
 	cells_to_open_ = size_ * size_ - bombs_amount_;
 	explosion_coords_ = { std::numeric_limits<int>::max(), std::numeric_limits<int>::max() };
@@ -31,7 +30,7 @@ GameBoard::GameBoard(const int& size, const int& bombs_count, const int& cell_si
 
 void GameBoard::set_bombs(const sf::Vector2i& start_cell) {
 	srand(time(nullptr));
-	is_empty_ = false;
+	is_clear_ = false;
 	for (auto i = 0; i < bombs_amount_; ++i) {
 		auto new_x = rand() % size_;
 		auto new_y = rand() % size_;
@@ -51,13 +50,13 @@ void GameBoard::set_bombs(const sf::Vector2i& start_cell) {
 }
 
 void GameBoard::open_cell(const sf::Vector2i& cell) {
-	if (is_empty_) {
+	if (is_clear_) {
 		if (cells_[cell.x][cell.y].check_state() == Cell::cell_state::FLAG) {
 			return;
 		}
 		set_bombs(cell);
 	}
-	if (!cells_[cell.x][cell.y].is_mined() && !is_empty_) {
+	if (!cells_[cell.x][cell.y].is_mined() && !is_clear_) {
 		open_empty_cell(cell);
 	}
 	if (const auto check = cells_[cell.x][cell.y].try_open(); check == 1) {
@@ -65,8 +64,7 @@ void GameBoard::open_cell(const sf::Vector2i& cell) {
 		if (!cells_to_open_) {
 			stage_ = game_stage::WIN;
 		}
-	}
-	else if (check == 0) {
+	} else if (check == 0) {
 		cells_to_open_ = 0;
 		stage_ = game_stage::LOSING;
 	}
@@ -74,57 +72,51 @@ void GameBoard::open_cell(const sf::Vector2i& cell) {
 
 void GameBoard::set_flag(const sf::Vector2i& cell) {
 	if (const auto check = cells_[cell.x][cell.y].set_reset_flag(); check == 1) {
-		--flags_left_;
-		if (flags_left_ < 0) {
+		--flags_remain_;
+		if (flags_remain_ < 0) {
 			cells_[cell.x][cell.y].set_reset_flag();
-			++flags_left_;
+			++flags_remain_;
 		}
-	}
-	else if (check == 0) {
-		++flags_left_;
+	} else if (check == 0) {
+		++flags_remain_;
 	}
 }
 
-void GameBoard::draw(sf::RenderWindow& app, const GraphicElement& graphic_element) {
-	sf::Sprite sprite;
+void GameBoard::draw(sf::RenderWindow& app) {
+	sf::Sprite cell;
 	app.clear(sf::Color::White);
 	for (auto i = 0; i < size_; ++i) {
 		for (auto j = 0; j < size_; ++j) {
-			auto cell = sf::Vector2i(i, j);
+			auto cell_coords = sf::Vector2i(i, j);
 			const auto cell_state = cells_[i][j].check_state();
 			std::string elem_name;
-
 			if (cell_state == Cell::cell_state::CLOSE) {
 				elem_name = "close";
-			}
-			else if (cell_state == Cell::cell_state::OPEN) {
+			} else if (cell_state == Cell::cell_state::OPEN) {
 				if (cells_[i][j].is_mined()) {
 					if (explosion_coords_.x >= size_) {
-						explosion_coords_ = cell;
+						explosion_coords_ = cell_coords;
+					} else {
+						cell_coords = explosion_coords_;
 					}
-					else {
-						cell = explosion_coords_;
-					}
-					elem_name = "red_bomb";
-				}
-				else {
+					elem_name = "exploded_bomb";
+				} else {
 					elem_name = std::to_string(bombs_around_cell_[i][j]);
 				}
-			}
-			else if (cell_state == Cell::cell_state::FLAG) {
+			} else if (cell_state == Cell::cell_state::FLAG) {
 				elem_name = "flag";
 			}
-			graphic_element.customize(sprite, sf::Vector2i(cell.x * cell_size_, cell.y * cell_size_), cell_size_, elem_name);
-			app.draw(sprite);
+			GraphicElement::customize(cell, sf::Vector2i(cell_coords.x * cell_size_, cell_coords.y * cell_size_), cell_size_, elem_name);
+			app.draw(cell);
 		}
 	}
-	show_all_bombs(app, graphic_element);
+	show_all_bombs(app);
 }
 
-void GameBoard::clear() {
-	is_empty_ = true;
+void GameBoard::reset_board() {
+	is_clear_ = true;
 	cells_to_open_ = size_ * size_ - bombs_amount_;
-	flags_left_ = bombs_amount_;
+	flags_remain_ = bombs_amount_;
 	stage_ = game_stage::GAME;
 	for (auto i = 0; i < size_; ++i) {
 		bombs_around_cell_[i].assign(size_, 0);
@@ -135,10 +127,8 @@ void GameBoard::clear() {
 	explosion_coords_ = { std::numeric_limits<int>::max(), std::numeric_limits<int>::max() };
 }
 
-
-
 void GameBoard::open_empty_cell(const sf::Vector2i& cell) {
-	if (is_empty_ || bombs_around_cell_[cell.x][cell.y] != 0) {
+	if (is_clear_ || bombs_around_cell_[cell.x][cell.y] != 0) {
 		return;
 	}
 
@@ -184,43 +174,31 @@ void GameBoard::count_bombs_around_cell(const sf::Vector2i& cell) {
 	}
 }
 
-void GameBoard::show_all_bombs(sf::RenderWindow& app, const GraphicElement& graphic_element) {
+void GameBoard::show_all_bombs(sf::RenderWindow& app) {
 	if (explosion_coords_.x < size_) {
-		sf::Sprite sprite;
+		sf::Sprite bomb;
 		for (auto i = 0; i < size_; ++i) {
 			for (auto j = 0; j < size_; ++j) {
 				const auto cell = sf::Vector2i(i, j);
 				if (cells_[i][j].is_mined()
 					&& !(i == explosion_coords_.x && j == explosion_coords_.y)) {
-					graphic_element.customize(sprite, sf::Vector2i(cell.x * cell_size_, cell.y * cell_size_), cell_size_, "bomb");
+					GraphicElement::customize(bomb, sf::Vector2i(cell.x * cell_size_, cell.y * cell_size_), cell_size_, "bomb");
 					open_cell(cell);
-					app.draw(sprite);
+					app.draw(bomb);
 				}
 			}
 		}
 	}
 }
 
-int GameBoard::get_size() const {
-	return size_;
-}
+int GameBoard::get_size() const { return size_; }
 
-bool GameBoard::is_empty() const {
-	return is_empty_;
-}
+bool GameBoard::is_clear() const { return is_clear_; }
 
-int GameBoard::get_cell_size() const {
-	return cell_size_;
-}
+int GameBoard::get_cell_size() const { return cell_size_; }
 
-int GameBoard::get_cells_to_open() const {
-	return cells_to_open_;
-}
+int GameBoard::get_cells_to_open() const { return cells_to_open_; }
 
-int GameBoard::get_flags_left() const {
-	return flags_left_;
-}
+int GameBoard::get_flags_left() const { return flags_remain_; }
 
-GameBoard::game_stage GameBoard::get_game_stage() const {
-	return stage_;
-}
+GameBoard::game_stage GameBoard::get_game_stage() const { return stage_; }

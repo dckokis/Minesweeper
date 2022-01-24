@@ -1,5 +1,6 @@
 #pragma once
 #include "Game.hpp"
+#include "MNSWPexceptions.hpp"
 
 class GameMenu final {
 public:
@@ -15,7 +16,6 @@ public:
 		sf::IntRect borders_;
 		sf::Text button_text_;
 	};
-
 	static bool start();
 	static Game::level get_level();
 

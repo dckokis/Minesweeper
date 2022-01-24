@@ -1,5 +1,22 @@
 #include "Game.hpp"
 
+namespace {
+	int game_bar_mouse_click_process(sf::RenderWindow& app, const GameBoard& board, const sf::Event& event) {
+		if (event.type == sf::Event::Closed) {
+			app.close();
+		}
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
+			&& GameInfoBar::restart_click_registered(sf::Mouse::getPosition(app), board)) {
+			return 1;
+		}
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
+			&& GameInfoBar::back_click_registered(sf::Mouse::getPosition(app), board)) {
+			return -1;
+		}
+		return 0;
+	}
+}
+
 bool Game::run(const Game::level level) {
 	int size, bombs_count, cell_size;
 	set_game_params(level, size, bombs_count, cell_size);
@@ -7,16 +24,15 @@ bool Game::run(const Game::level level) {
 	auto board_wight = board.get_size() * board.get_cell_size();
 	sf::RenderWindow app(sf::VideoMode(board_wight,
 	                                   board_wight + GameInfoBar::get_height()), "Minesweeper", sf::Style::Close);
-	GraphicElement graphic_element;
+	GraphicElement::load_textures();
 	while (new_game_) {
-		board.clear();
+		board.reset_board();
 		GameInfoBar info_bar;
 		while (app.isOpen()) {
-			new_game_ = 0;
 			mouse_click_process(app, board);
 			if (!new_game_) {
-				board.draw(app, graphic_element);
-				info_bar.draw(app, board, graphic_element);
+				board.draw(app);
+				info_bar.draw(app, board);
 				app.display();
 				game_over(app, board);
 			}
@@ -32,21 +48,23 @@ bool Game::run(const Game::level level) {
 	return false;
 }
 
-void Game::set_game_params(const level& level, int& size, int& bombs_count, int& cell_size) {
-	if (level == level::LIGHT) {
-		cell_size = 60;
-		size = 10;
-		bombs_count = 10;
-	}
-	else if (level == level::MEDIUM) {
-		cell_size = 45;
-		size = 15;
-		bombs_count = 30;
-	}
-	else {
-		cell_size = 32;
-		size = 25;
-		bombs_count = 90;
+void Game::set_game_params(const level& level, int& size, int& bombs_count, int& cell_size) const {
+	switch (level) {
+	case level::LIGHT:
+		cell_size = level_params_.at(level::LIGHT).cell_size;
+		size = level_params_.at(level::LIGHT).size;
+		bombs_count = level_params_.at(level::LIGHT).bombs_count;
+		break;
+	case level::MEDIUM:
+		cell_size = level_params_.at(level::MEDIUM).cell_size;
+		size = level_params_.at(level::MEDIUM).size;
+		bombs_count = level_params_.at(level::MEDIUM).bombs_count;
+		break;
+	case level::HARD:
+		cell_size = level_params_.at(level::HARD).cell_size;
+		size = level_params_.at(level::HARD).size;
+		bombs_count = level_params_.at(level::HARD).bombs_count;
+		break;
 	}
 }
 
@@ -56,27 +74,14 @@ void Game::mouse_click_process(sf::RenderWindow& app, GameBoard& board) {
 
 	sf::Event event{};
 	while (app.pollEvent(event)) {
-		if (event.type == sf::Event::Closed) {
-			app.close();
-		}
 		if (event.type == sf::Event::MouseButtonPressed && cell.y < board.get_size() && board.get_cells_to_open()) {
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 				board.open_cell(cell);
-			}
-			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+			} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
 				board.set_flag(cell);
 			}
 		}
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-			&& GameInfoBar::restart_click_registered(sf::Mouse::getPosition(app), board)) {
-			new_game_ = 1;
-			return;
-		}
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-			&& GameInfoBar::back_click_registered(sf::Mouse::getPosition(app), board)) {
-			new_game_ = -1;
-			return;
-		}
+		set_new_game(game_bar_mouse_click_process(app, board, event));
 	}
 }
 
@@ -84,19 +89,9 @@ void Game::game_over(sf::RenderWindow& app, const GameBoard& board) {
 	sf::Event event{};
 	if (!board.get_cells_to_open()) {
 		while (app.pollEvent(event)) {
-			if (event.type == sf::Event::Closed) {
-				app.close();
-			}
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-				&& GameInfoBar::restart_click_registered(sf::Mouse::getPosition(app), board)) {
-				new_game_ = 1;
-				return;
-			}
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-				&& GameInfoBar::back_click_registered(sf::Mouse::getPosition(app), board)) {
-				new_game_ = -1;
-				return;
-			}
+			set_new_game(game_bar_mouse_click_process(app, board, event));
 		}
 	}
 }
+
+void Game::set_new_game(const int value) { new_game_ = value; }

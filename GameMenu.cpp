@@ -1,6 +1,17 @@
 #include "GameMenu.hpp"
 
 namespace {
+	void draw_title(const std::string& title, sf::RenderWindow& app, const sf::Font& font, const int size) {
+		sf::Text lvl_select;
+		lvl_select.setFont(font);
+		lvl_select.setString(title);
+		lvl_select.setPosition(static_cast<float>(size / 4) - 118, static_cast<float>(size / 24));
+		lvl_select.setStyle(sf::Text::Style::Regular);
+		lvl_select.setFillColor(sf::Color::Red);
+		lvl_select.setCharacterSize(50);
+		app.draw(lvl_select);
+	}
+
 	const std::string font_path = "resources/font/Montserrat-Bold.ttf";
 }
 
@@ -8,7 +19,7 @@ bool GameMenu::start() {
 	sf::RenderWindow app(sf::VideoMode(size, size), "Main Menu", sf::Style::Close);
 	sf::Font font;
 	if (!font.loadFromFile(font_path)) {
-		throw std::invalid_argument(font_path);
+		throw MNSWPexceptions("unable to find font by path: " + font_path);
 	}
 
 	while (app.isOpen()) {
@@ -25,42 +36,24 @@ bool GameMenu::start() {
 				app.close();
 				return false;
 			}
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-				&& light_level_btn.click_registered(sf::Mouse::getPosition(app))) {
-				level_ = Game::level::LIGHT;
-				app.close();
-			}
-			else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-				&& medium_level_btn.click_registered(sf::Mouse::getPosition(app))) {
-				level_ = Game::level::MEDIUM;
-				app.close();
-			}
-			else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-				&& hard_btn.click_registered(sf::Mouse::getPosition(app))) {
-				level_ = Game::level::HARD;
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+				if (light_level_btn.click_registered(sf::Mouse::getPosition(app))) {
+					level_ = Game::level::LIGHT;
+				} else if (medium_level_btn.click_registered(sf::Mouse::getPosition(app))) {
+					level_ = Game::level::MEDIUM;
+				} else if (hard_btn.click_registered(sf::Mouse::getPosition(app))) {
+					level_ = Game::level::HARD;
+				}
 				app.close();
 			}
 		}
 		light_level_btn.draw(app);
 		medium_level_btn.draw(app);
 		hard_btn.draw(app);
-
-		sf::Text lvl_select;
-		lvl_select.setFont(font);
-		lvl_select.setString("SELECT GAME LEVEL");
-		lvl_select.setPosition(static_cast<float>(size / 4) - 118, static_cast<float>(size / 24));
-		lvl_select.setStyle(sf::Text::Style::Regular);
-		lvl_select.setFillColor(sf::Color::Red);
-		lvl_select.setCharacterSize(50);
-		app.draw(lvl_select);
-
+		draw_title("SELECT GAME LEVEL", app, font, size);
 		app.display();
 	}
 	return true;
-}
-
- Game::level GameMenu::get_level() {
-	return level_;
 }
 
 GameMenu::MenuButton::MenuButton(const sf::Vector2i& size, const std::string& txt, const sf::Vector2i& pos, const sf::Font& font) {
@@ -94,6 +87,6 @@ void GameMenu::MenuButton::draw(sf::RenderWindow& app) const {
 	app.draw(button_text_);
 }
 
-bool GameMenu::MenuButton::click_registered(const sf::Vector2i& point) const {
-	return borders_.contains(point);
-}
+Game::level GameMenu::get_level() { return level_; }
+
+bool GameMenu::MenuButton::click_registered(const sf::Vector2i& point) const { return borders_.contains(point); }
